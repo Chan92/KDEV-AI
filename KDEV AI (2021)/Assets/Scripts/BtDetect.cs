@@ -3,30 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BtDetect  : BtNode {
+	private Blackboard blackBoard;
+	private Transform obj;
 	public float detectRadius;
 	public float closeRangeDetect;
 	public float sightAngle;
-	private Transform obj;
+	private string targetTypeName;
 
-	public BtDetect(Blackboard blackBoard) {
+	public BtDetect(Blackboard _blackBoard, string _newTargetType) {
+		blackBoard = _blackBoard;
 		obj = blackBoard.GetData<Transform>("ThisTransform");
 		detectRadius = blackBoard.GetData<float>("DetectRadius");
 		closeRangeDetect = blackBoard.GetData<float>("CloseRangeDetect");
 		sightAngle = blackBoard.GetData<float>("SightAngle");
+		targetTypeName = _newTargetType;
 	}
 
 	public override BtResult Run() {
 		Collider[] hitColliders = Physics.OverlapSphere(obj.transform.position, detectRadius);
 
 		foreach(Collider hit in hitColliders) {
-			if(hit.transform.tag == "Player") {
+			if(hit.transform.tag == targetTypeName) {
 				if(CheckDetection(hit.transform)) {
+					blackBoard.SetData<Transform>(targetTypeName, hit.transform);
 					return BtResult.success;
 				}
 			}
 		}
 
-		Debug.Log("not found!");
+		Debug.Log("Target " + targetTypeName + " not found!");
 		return BtResult.failed;
 	}
 
@@ -39,10 +44,10 @@ public class BtDetect  : BtNode {
 		if(Physics.Linecast(obj.position, intruder.position, out hit)) {
 			if(hit.transform == intruder) {
 				if(distance < closeRangeDetect) {
-					Debug.Log("detected: close range");
+					Debug.Log("Detected target in close range.");
 					return true;
 				} else if(Mathf.Abs(angle) < sightAngle) {
-					Debug.Log("detected: in eye sight");
+					Debug.Log("Detected target in eye sight.");
 					return true;
 				}
 			}

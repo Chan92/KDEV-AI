@@ -9,21 +9,17 @@ public class BtMoveToTarget : BtNode {
 	private Transform target;
 	private float distanceOffset;
 
-	public BtMoveToTarget(Blackboard blackBoard) {
+	public BtMoveToTarget(Blackboard blackBoard, Transform _newTarget) {
 		obj = blackBoard.GetData<Transform>("ThisTransform");
-		target = blackBoard.GetData<Transform>("CurrentTarget");
-		distanceOffset = blackBoard.GetData<float>("AnyOffset");
-		
+		distanceOffset = blackBoard.GetData<float>("AnyOffset");		
+		target = _newTarget;
 		agent = obj.GetComponent<NavMeshAgent>();
 	}
 
-	public BtMoveToTarget(Blackboard blackBoard, Transform _newTarget) {
+	public BtMoveToTarget(Blackboard blackBoard, string _newTargetName) {
 		obj = blackBoard.GetData<Transform>("ThisTransform");
 		distanceOffset = blackBoard.GetData<float>("AnyOffset");
-		
-		target = _newTarget;
-		blackBoard.SetData<Transform>("CurrentTarget", target);
-
+		target = blackBoard.GetData<Transform>(_newTargetName);
 		agent = obj.GetComponent<NavMeshAgent>();
 	}
 
